@@ -1,4 +1,4 @@
-name: GitHub Actions Demo Terraform lint
+name: GitHub Actions Demo Terraform apply
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on:
   push:
