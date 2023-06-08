@@ -1,0 +1,56 @@
+name: GitHub Actions Demo Terraform lint
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - 'terraform/*'
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    name: Terraform Develop
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Branch name
+      run: echo running on branch ${GITHUB_REF##*/}
+    - name: Configure AWS Credentials Action For GitHub Actions
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_SECRET_REGION }}
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.1.9
+        terraform_wrapper: false
+    - name: Terraform Init
+      id: init
+      run: terraform init
+      working-directory: ./terraform/infra
+      shell: bash
+    - name: Terraform Plan
+      id: plan
+      run: |
+        terraform plan -var-file="./env/${GITHUB_REF##*/}.tfvars" -no-color -out tf.plan
+      env:
+        AWS_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        AWS_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+      working-directory: ./terraform/infra
+      shell: bash
+      continue-on-error: true
+    - name: Terraform Show
+      id: show
+      run: terraform show -no-color tf.plan 2>&1 > /tmp/plan.txt
+      working-directory: ./terraform/infra # Use your environment folder
+      shell: bash
+    - name: Terraform Apply NON PROD
+      if: github.ref != 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -input=false tf.plan
+      env:
+        AWS_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+        AWS_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+      working-directory: ./terraform/infra # Use your environment folder
+      shell: bash
