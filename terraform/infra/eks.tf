@@ -6,7 +6,7 @@ provider "kubernetes" {
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
     command     = "aws"
-    args = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
   }
 }
 
@@ -17,7 +17,7 @@ provider "helm" {
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "aws"
-      args = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
     }
   }
 }
@@ -82,8 +82,8 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 19.0"
 
-  cluster_name                   = local.eks_name
-  cluster_version                = local.cluster_version
+  cluster_name    = local.eks_name
+  cluster_version = local.cluster_version
 
   cluster_endpoint_public_access = true
   cluster_addons = {
@@ -216,7 +216,7 @@ module "eks" {
 
   tags = merge(local.tags, {
     "karpenter.sh/discovery" = local.eks_name
-    "Terraform"  = "True"
+    "Terraform"              = "True"
   })
 }
 
@@ -369,8 +369,8 @@ module "eks_blueprints_addons" {
   }
 
   enable_aws_load_balancer_controller = true
-  enable_kube_prometheus_stack = true
-  enable_metrics_server        = true
+  enable_kube_prometheus_stack        = true
+  enable_metrics_server               = true
 
   tags = {
     Environment = var.environment_name
