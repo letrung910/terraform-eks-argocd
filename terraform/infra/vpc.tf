@@ -4,18 +4,13 @@ module "vpc" {
   name = "${var.environment_name}-${var.vpc_name}"
   cidr = var.cidr
 
-  # azs             = var.availability_zone_names
-  # private_subnets = var.private_subnets
-  # public_subnets  = var.public_subnets
-  # intra_subnets   = var.intra_subnets
-
   azs             = local.azs
   private_subnets = [for k, v in local.azs : cidrsubnet(var.cidr, 4, k)]
   public_subnets  = [for k, v in local.azs : cidrsubnet(var.cidr, 8, k + 48)]
   intra_subnets   = [for k, v in local.azs : cidrsubnet(var.cidr, 8, k + 52)]
 
   enable_nat_gateway = true
-  single_nat_gateway = var.environment_name == "dev111" ? true : false
+  single_nat_gateway = var.environment_name == "dev" ? true : false
   # enable_vpn_gateway = true
 
   enable_dns_hostnames = true
