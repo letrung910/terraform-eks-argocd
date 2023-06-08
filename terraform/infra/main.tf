@@ -28,13 +28,13 @@ terraform {
 
 provider "aws" {
   region = "us-east-1"
-  alias = "virginia"
+  alias  = "virginia"
 }
 
 provider "aws" {
-  region                  = var.region
+  region = var.region
   # shared_credentials_file = "path_file_credentials like C:\Users\terraform\.aws\credentials"
-  profile                 = "default"
+  profile = "default"
 }
 
 terraform {
@@ -45,4 +45,4 @@ terraform {
     encrypt        = true
     dynamodb_table = "dev-dynamodb-lock"
   }
-  }
+}

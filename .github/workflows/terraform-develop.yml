@@ -5,7 +5,7 @@ on:
     branches:
       - develop
     paths:
-      - 'terraform/*'
+      - 'terraform/**'
 jobs:
   terraform:
     runs-on: ubuntu-latest
