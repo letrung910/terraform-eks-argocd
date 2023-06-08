@@ -1,3 +1,6 @@
+resource "aws_iam_user" "eks_user" {
+  name = "eks_user"
+}
 
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
