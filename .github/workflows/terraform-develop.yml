@@ -6,6 +6,7 @@ on:
       - develop
     paths:
       - 'terraform/**'
+      - '.github/**'
 jobs:
   terraform:
     runs-on: ubuntu-latest
