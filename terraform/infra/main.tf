@@ -41,7 +41,7 @@ terraform {
   backend "s3" {
     bucket         = "trunglv-terrform-s3"
     key            = "dev/terraform.state"
-    region         = var.region
+    region         = "us-west-1"
     encrypt        = true
     dynamodb_table = "dev-dynamodb-lock"
   }
