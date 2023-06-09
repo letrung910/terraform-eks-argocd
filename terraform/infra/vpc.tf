@@ -130,7 +130,7 @@ resource "aws_security_group" "vpc_tls" {
 
 
 resource "aws_iam_policy" "node_additional" {
-  name        = "${local.name}-additional"
+  name        = "${local.eks_name}-additional"
   description = "Example usage of node additional policy"
 
   policy = jsonencode({

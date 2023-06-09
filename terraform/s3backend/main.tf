@@ -11,12 +11,19 @@ terraform {
 }
 
 provider "aws" {
-  region  = "us-west-1"
-  profile = "dev"
+  region  = "us-east-1"
+  profile = "default"
 }
 
 resource "aws_s3_bucket" "terraform" {
-  bucket = "trunglv-terrform-s3"
+  bucket = "trunglv-terraform-workshop"
+}
+
+resource "aws_s3_bucket_ownership_controls" "bucket_ower" {
+  bucket = aws_s3_bucket.terraform.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
 }
 resource "aws_s3_bucket_acl" "terraform_bucket_acl" {
   bucket = aws_s3_bucket.terraform.id
@@ -28,6 +35,8 @@ resource "aws_s3_bucket_versioning" "versioning_terraform" {
     status = "Enabled"
   }
 }
+
+
 
 resource "aws_s3_bucket_public_access_block" "block" {
   bucket = aws_s3_bucket.terraform.id

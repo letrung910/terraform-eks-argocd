@@ -1,7 +1,7 @@
 ## backend
 variable "tf_state_bucket" {
   type    = string
-  default = "trunglv-terrform-s3"
+  default = "trunglv-terraform-workshop"
 }
 
 variable "tf_state_key" {
@@ -11,7 +11,7 @@ variable "tf_state_key" {
 
 variable "region" {
   type    = string
-  default = "us-west-1"
+  default = "us-east-1"
 }
 
 variable "tf_state_table" {
@@ -36,7 +36,7 @@ variable "cidr" {
 
 variable "availability_zone_names" {
   type    = list(string)
-  default = ["us-west-1b", "us-west-1c"]
+  default = ["us-east-1b", "us-east-1c"]
 }
 
 variable "private_subnets" {
