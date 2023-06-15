@@ -3,11 +3,7 @@ Cloud		          : AWS
 
 IaC               : Terraform
 
-CI/CD		          :
-
-	                  + GithubAction for Application
-
-	                  + Atlantis for Terraform IaC
+CI/CD		          :  GithubAction for Application and Atlantis for Terraform IaC
 
 Container	        : Kubernetes EKS
 
