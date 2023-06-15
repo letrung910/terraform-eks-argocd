@@ -1,6 +1,11 @@
-# terraform-eks-argocd
-terraform-eks-argocd
-
-
-### terraform fmt
-terraform fmt -recursive
+#my stack for this workshop
+Cloud		          : AWS
+IaC               : Terraform
+CI/CD		          :
+	                  + GithubAction for Application
+	                  + Atlantis for Terraform IaC
+Container	        : Kubernetes EKS
+Manage applications: Kustomize, Helm
+Autoscale node    : Karpenter
+HPA			          : Keda
+GitOps		         : ArgoCD     // optional: Argo Rollout (Canary, Blue/Green)
