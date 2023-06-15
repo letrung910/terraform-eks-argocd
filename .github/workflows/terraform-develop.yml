@@ -3,7 +3,7 @@ run-name: Deploy Terraform develop environment
 on:
   push:
     branches:
-      - main
+      - develop
     paths:
       - 'terraform/**'
 jobs:
