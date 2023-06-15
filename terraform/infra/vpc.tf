@@ -127,24 +127,3 @@ resource "aws_security_group" "vpc_tls" {
 
   tags = local.tags
 }
-
-
-resource "aws_iam_policy" "node_additional" {
-  name        = "${local.eks_name}-additional"
-  description = "Example usage of node additional policy"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "ec2:Describe*",
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      },
-    ]
-  })
-
-  tags = local.tags
-}
