@@ -8,7 +8,7 @@ terraform {
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = ">= 2.10"
+      version = ">= 2.17"
     }
     helm = {
       source  = "hashicorp/helm"
@@ -32,16 +32,15 @@ provider "aws" {
 }
 
 provider "aws" {
-  region = "us-west-1"
+  region = "us-east-1"
   # shared_credentials_file = "path_file_credentials like C:\Users\terraform\.aws\credentials"
-  # profile = "default"
 }
 
 terraform {
   backend "s3" {
-    bucket         = "trunglv-terrform-s3"
+    bucket         = "trunglv-terraform-workshop"
     key            = "dev/terraform.state"
-    region         = "us-west-1"
+    region         = "us-east-1"
     encrypt        = true
     dynamodb_table = "dev-dynamodb-lock"
   }

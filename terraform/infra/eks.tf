@@ -167,27 +167,16 @@ module "eks" {
       #     effect = "NO_SCHEDULE"
       #   }
       # }
+      update_config = {
+        max_unavailable_percentage = 33 # or set `max_unavailable`
+      }
+      description = "EKS managed node group example launch template"
+
+      ebs_optimized           = true
+      disable_api_termination = false
+      enable_monitoring       = true
+
     }
-  }
-  update_config = {
-    max_unavailable_percentage = 33 # or set `max_unavailable`
-  }
-  description = "EKS managed node group example launch template"
-
-  ebs_optimized           = true
-  disable_api_termination = false
-  enable_monitoring       = true
-
-  create_iam_role          = true
-  iam_role_name            = "eks-managed-node-group-complete-example"
-  iam_role_use_name_prefix = false
-  iam_role_description     = "EKS managed node group complete example role"
-  iam_role_tags = {
-    Purpose = "Protector of the kubelet"
-  }
-  iam_role_additional_policies = {
-    AmazonEC2ContainerRegistryReadOnly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-    additional                         = aws_iam_policy.node_additional.arn
   }
 
 
@@ -393,11 +382,16 @@ module "eks_blueprints_addons" {
   }
 
   enable_aws_load_balancer_controller = true
+  enable_cluster_proportional_autoscaler = true
+  enable_karpenter             = true
   enable_kube_prometheus_stack        = true
   enable_metrics_server               = true
   enable_argo_rollouts                = true
   enable_argocd                       = true
   enable_ingress_nginx                = true
+  # enable_external_dns                    = true
+  # enable_cert_manager                    = true
+  # cert_manager_route53_hosted_zone_arns  = ["arn:aws:route53:::hostedzone/XXXXXXXXXXXXX"]
 
   tags = {
     Environment = var.environment_name
