@@ -382,9 +382,9 @@ module "eks_blueprints_addons" {
   }
 
   enable_aws_load_balancer_controller = true
-  enable_cluster_proportional_autoscaler = false
+  # enable_cluster_proportional_autoscaler = true
   enable_cluster_autoscaler    = true # work with EKS Managed Node Group(s) ASG
-  enable_karpenter             = false # create new instance without ASG
+  enable_karpenter             = true # create new instance without ASG
   enable_kube_prometheus_stack = true
   enable_metrics_server        = true
   enable_argo_rollouts         = true
