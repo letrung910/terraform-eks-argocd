@@ -1,5 +1,5 @@
 name: GitHub Actions Demo Terraform apply
-run-name: Deploy Terraform production environment
+run-name: Production environment
 on:
   push:
     branches:
@@ -39,12 +39,12 @@ jobs:
       shell: bash
     - name: Module networking Plan
       id: plan
-      run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE plan -no-color -out tf.plan
+      run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE plan
       shell: bash
       continue-on-error: true
     - name: Module networking Apply
       # if: github.ref != 'refs/heads/main' && github.event_name == 'push'
-      run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE apply -input=false tf.plan
+      run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE apply --auto-approve
       shell: bash
 
   eks:
@@ -76,6 +76,6 @@ jobs:
       shell: bash
     - name: Module eks Plan
       id: plan
-      run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE plan -no-color -out tf.plan
+      run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE plan
       shell: bash
       continue-on-error: true
