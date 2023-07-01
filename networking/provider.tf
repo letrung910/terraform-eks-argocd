@@ -3,7 +3,6 @@
 provider "aws" {
   region = "us-east-1"
   # shared_credentials_file = "path_file_credentials like C:\Users\terraform\.aws\credentials"
-  profile = "dev"
 }
 #### NORTHERN VIRGINIA : us-east-1
 provider "aws" {
