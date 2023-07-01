@@ -6,13 +6,16 @@ on:
       - main
     paths:
       - '**/*.tf'
+
+env:
+  ENVIRONMENT_NAME: prod
+
 jobs:
   networking:
     runs-on: ubuntu-latest
     environment: production
     env:
       TF_MODULE: networking
-      ENVIRONMENT_NAME: prod
     name: Module networking
     steps:
     - name: Checkout
@@ -40,7 +43,7 @@ jobs:
       shell: bash
       continue-on-error: true
     - name: Module networking Apply
-      if: github.ref != 'refs/heads/main' && github.event_name == 'push'
+      # if: github.ref != 'refs/heads/main' && github.event_name == 'push'
       run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE apply -input=false tf.plan
       shell: bash
 
