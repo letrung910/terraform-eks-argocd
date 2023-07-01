@@ -1,5 +1,5 @@
 name: GitHub Actions Demo Terraform apply
-run-name: Deploy Terraform develop environment
+run-name: Deploy Terraform production environment
 on:
   push:
     branches:
