@@ -59,7 +59,7 @@ module "eks" {
       resolve_conflicts = "OVERWRITE"
     }
 
-    vpc-cni    = {
+    vpc-cni = {
       resolve_conflicts = "OVERWRITE"
     }
 
@@ -146,12 +146,12 @@ module "eks" {
 
       instance_types = ["t3.medium"]
       capacity_type  = "SPOT" ### Type of capacity associated with the EKS Node Group. Valid values: ON_DEMAND, SPOT
-      labels =  merge(module.envs.tags, {
+      labels = merge(module.envs.tags, {
         # NOTE - if creating multiple security groups with this module, only tag the
         # security group that Karpenter should utilize with the following tag
         # (i.e. - at most, only one security group should have this tag in your account)
-        nodegroup = "blue"
-        "Terraform"              = "True"
+        nodegroup   = "blue"
+        "Terraform" = "True"
       })
     }
     green = {
@@ -170,8 +170,8 @@ module "eks" {
       update_config = {
         max_unavailable_percentage = 33 # or set `max_unavailable`
       }
-      ebs_optimized           = true
-      enable_monitoring       = true
+      ebs_optimized     = true
+      enable_monitoring = true
     }
     gpu = {
       min_size     = 1
@@ -196,8 +196,8 @@ module "eks" {
       update_config = {
         max_unavailable_percentage = 33 # or set `max_unavailable`
       }
-      ebs_optimized           = true
-      enable_monitoring       = true
+      ebs_optimized     = true
+      enable_monitoring = true
     }
   }
 
@@ -277,7 +277,7 @@ module "karpenter" {
   }
 
   tags = merge(module.envs.tags, {
-    "Terraform"              = "True"
+    "Terraform" = "True"
   })
 }
 
@@ -432,6 +432,6 @@ module "eks_blueprints_addons" {
     # NOTE - if creating multiple security groups with this module, only tag the
     # security group that Karpenter should utilize with the following tag
     # (i.e. - at most, only one security group should have this tag in your account)
-    "Terraform"              = "True"
+    "Terraform" = "True"
   })
 }

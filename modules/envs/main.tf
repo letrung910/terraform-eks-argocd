@@ -8,12 +8,12 @@ locals {
 
 
   tags = {
-    environment  = "trunglv"
-    project = "${var.project}"
+    environment = "trunglv"
+    project     = "${var.project}"
   }
 
   common_tags = {
-    DeployedBy  = "trunglv"
+    DeployedBy = "trunglv"
   }
   account_id = data.aws_caller_identity.current.account_id
 }

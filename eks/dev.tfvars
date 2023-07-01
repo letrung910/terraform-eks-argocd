@@ -1,2 +1,2 @@
-project = "workshop"
+project     = "workshop"
 environment = "dev"

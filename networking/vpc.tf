@@ -1,7 +1,7 @@
 module "envs" {
   source      = "../modules/envs"
-  environment = "${var.environment}"
-  project     = "${var.project}"
+  environment = var.environment
+  project     = var.project
 
 }
 data "aws_availability_zones" "available" {}
@@ -12,8 +12,8 @@ locals {
 
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
-  name    = "${var.project}-${var.environment}-vpc"
-  cidr    = "${var.cidr}"
+  name   = "${var.project}-${var.environment}-vpc"
+  cidr   = var.cidr
 
   azs             = local.azs
   private_subnets = [for k, v in local.azs : cidrsubnet(var.cidr, 4, k)]
@@ -40,7 +40,7 @@ module "vpc" {
 
 
   tags = merge(module.envs.common_tags, {
-    Terraform   = "true"
+    Terraform = "true"
   })
 }
 

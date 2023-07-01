@@ -1,3 +1,3 @@
-project = "workshop"
+project     = "workshop"
 environment = "dev"
-cidr = "192.168.0.0/16"
+cidr        = "192.168.0.0/16"
