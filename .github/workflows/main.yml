@@ -83,7 +83,7 @@ jobs:
   storage:
     needs: networking
     runs-on: ubuntu-latest
-    environment: develop
+    environment: production
     env:
       TF_MODULE: storage
     name: Module storage
