@@ -64,7 +64,6 @@ module "vpc_endpoints" {
   }
 
   tags = merge(module.envs.tags, {
-    Project  = "Secret"
     Endpoint = "true"
   })
 }
