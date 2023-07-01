@@ -1,16 +1,27 @@
+module "envs" {
+  source      = "../modules/envs"
+  environment = "${var.environment}"
+  project     = "${var.project}"
+
+}
+data "aws_availability_zones" "available" {}
+
+locals {
+  azs = slice(data.aws_availability_zones.available.names, 0, 2)
+}
+
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
-
-  name = "${var.environment_name}-${var.vpc_name}"
-  cidr = var.cidr
+  name    = "${var.project}-${var.environment}-vpc"
+  cidr    = "${var.cidr}"
 
   azs             = local.azs
   private_subnets = [for k, v in local.azs : cidrsubnet(var.cidr, 4, k)]
   public_subnets  = [for k, v in local.azs : cidrsubnet(var.cidr, 8, k + 48)]
   intra_subnets   = [for k, v in local.azs : cidrsubnet(var.cidr, 8, k + 52)]
 
-  enable_nat_gateway = true
-  single_nat_gateway = var.environment_name == "dev" ? true : false
+  enable_nat_gateway = false
+  single_nat_gateway = var.environment == "dev" ? true : false
   # enable_vpn_gateway = true
 
   enable_dns_hostnames = true
@@ -24,13 +35,12 @@ module "vpc" {
 
   private_subnet_tags = {
     "kubernetes.io/role/internal-elb" = 1
-    "karpenter.sh/discovery"          = local.eks_name
+    "karpenter.sh/discovery"          = module.envs.eks_name
   }
 
 
-  tags = merge(local.common_tags, {
+  tags = merge(module.envs.common_tags, {
     Terraform   = "true"
-    Environment = var.environment_name
   })
 }
 
@@ -58,7 +68,7 @@ module "vpc_endpoints" {
     }
   }
 
-  tags = merge(local.tags, {
+  tags = merge(module.envs.tags, {
     Project  = "Secret"
     Endpoint = "true"
   })
@@ -125,5 +135,5 @@ resource "aws_security_group" "vpc_tls" {
     cidr_blocks = [module.vpc.vpc_cidr_block]
   }
 
-  tags = local.tags
+  tags = module.envs.tags
 }

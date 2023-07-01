@@ -1,45 +1,10 @@
+
+
+# https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/examples/karpenter/main.tf
 resource "aws_iam_user" "eks_user" {
   name = "eks_user"
 }
 
-provider "kubernetes" {
-  host                   = module.eks.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
-  }
-}
-
-provider "helm" {
-  kubernetes {
-    host                   = module.eks.cluster_endpoint
-    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-    exec {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "aws"
-      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
-    }
-  }
-}
-
-provider "kubectl" {
-  apply_retry_count      = 5
-  host                   = module.eks.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-  load_config_file       = false
-
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "aws"
-    # This requires the awscli to be installed locally where Terraform is executed
-    args = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
-  }
-}
-
-data "aws_availability_zones" "available" {}
 data "aws_ecrpublic_authorization_token" "token" {
   provider = aws.virginia
 }
@@ -85,14 +50,21 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 19.0"
 
-  cluster_name    = local.eks_name
-  cluster_version = local.cluster_version
+  cluster_name    = module.envs.eks_name
+  cluster_version = module.envs.cluster_version
 
   cluster_endpoint_public_access = true
   cluster_addons = {
-    kube-proxy = {}
-    vpc-cni    = {}
+    kube-proxy = {
+      resolve_conflicts = "OVERWRITE"
+    }
+
+    vpc-cni    = {
+      resolve_conflicts = "OVERWRITE"
+    }
+
     coredns = {
+      resolve_conflicts = "OVERWRITE"
       configuration_values = jsonencode({
         # computeType = "Fargate"
         # Ensure that we fully utilize the minimum amount of resources that are supplied by
@@ -120,11 +92,46 @@ module "eks" {
   }
 
 
-  vpc_id                   = module.vpc.vpc_id
-  subnet_ids               = module.vpc.private_subnets
-  control_plane_subnet_ids = module.vpc.intra_subnets
+  vpc_id                   = data.terraform_remote_state.networking.outputs.vpc_id
+  subnet_ids               = data.terraform_remote_state.networking.outputs.private_subnets
+  control_plane_subnet_ids = data.terraform_remote_state.networking.outputs.intra_subnets
 
+  # # Self Managed Node Group(s)
+  # self_managed_node_group_defaults = {
+  #   instance_type                          = "t3.micro"
+  #   update_launch_template_default_version = true
+  #   iam_role_additional_policies = {
+  #     AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  #   }
+  # }
 
+  # self_managed_node_groups = {
+  #   one = {
+  #     name         = "mixed-1"
+  #     max_size     = 5
+  #     desired_size = 2
+
+  #     use_mixed_instances_policy = true
+  #     mixed_instances_policy = {
+  #       instances_distribution = {
+  #         on_demand_base_capacity                  = 0
+  #         on_demand_percentage_above_base_capacity = 10
+  #         spot_allocation_strategy                 = "capacity-optimized"
+  #       }
+
+  #       override = [
+  #         {
+  #           instance_type     = "t3.micro"
+  #           weighted_capacity = "1"
+  #         },
+  #         {
+  #           instance_type     = "t2.micro"
+  #           weighted_capacity = "2"
+  #         },
+  #       ]
+  #     }
+  #   }
+  # }
 
   # EKS Managed Node Group(s)
   eks_managed_node_group_defaults = {
@@ -139,12 +146,13 @@ module "eks" {
 
       instance_types = ["t3.medium"]
       capacity_type  = "SPOT" ### Type of capacity associated with the EKS Node Group. Valid values: ON_DEMAND, SPOT
-      labels = {
-        Environment = "test"
-        GithubRepo  = "terraform-aws-eks"
-        GithubOrg   = "terraform-aws-modules"
-        nodegroup   = "blue"
-      }
+      labels =  merge(module.envs.tags, {
+        # NOTE - if creating multiple security groups with this module, only tag the
+        # security group that Karpenter should utilize with the following tag
+        # (i.e. - at most, only one security group should have this tag in your account)
+        nodegroup = "blue"
+        "Terraform"              = "True"
+      })
     }
     green = {
       min_size     = 1
@@ -159,26 +167,39 @@ module "eks" {
         GithubOrg   = "terraform-aws-modules"
         nodegroup   = "green"
       }
-
-      # taints = {
-      #   dedicated = {
-      #     key    = "dedicated"
-      #     value  = "gpuGroup"
-      #     effect = "NO_SCHEDULE"
-      #   }
-      # }
       update_config = {
         max_unavailable_percentage = 33 # or set `max_unavailable`
       }
-      description = "EKS managed node group example launch template"
-
       ebs_optimized           = true
-      disable_api_termination = false
       enable_monitoring       = true
+    }
+    gpu = {
+      min_size     = 1
+      max_size     = 2
+      desired_size = 1
 
+      instance_types = ["t3.medium"]
+      capacity_type  = "SPOT" ### Type of capacity associated with the EKS Node Group. Valid values: ON_DEMAND, SPOT
+      labels = {
+        Environment = "test"
+        GithubRepo  = "terraform-aws-eks"
+        GithubOrg   = "terraform-aws-modules"
+        nodegroup   = "gpu"
+      }
+      taints = {
+        dedicated = {
+          key    = "dedicated"
+          value  = "gpuGroup"
+          effect = "NO_SCHEDULE"
+        }
+      }
+      update_config = {
+        max_unavailable_percentage = 33 # or set `max_unavailable`
+      }
+      ebs_optimized           = true
+      enable_monitoring       = true
     }
   }
-
 
   # Fargate Profile(s)
   fargate_profiles = {
@@ -223,12 +244,23 @@ module "eks" {
       username = "eks_user"
       groups   = ["system:masters"]
     },
-
+    # {
+    #   userarn  = "arn:aws:iam::66666666666:user/user2"
+    #   username = "user2"
+    #   groups   = ["system:masters"]
+    # },
   ]
 
+  #   aws_auth_accounts = [
+  #     "777777777777",
+  #     "888888888888",
+  #   ]
 
-  tags = merge(local.tags, {
-    "karpenter.sh/discovery" = local.eks_name
+  tags = merge(module.envs.tags, {
+    # NOTE - if creating multiple security groups with this module, only tag the
+    # security group that Karpenter should utilize with the following tag
+    # (i.e. - at most, only one security group should have this tag in your account)
+    "karpenter.sh/discovery" = module.envs.eks_name
     "Terraform"              = "True"
   })
 }
@@ -244,7 +276,9 @@ module "karpenter" {
     AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   }
 
-  tags = local.tags
+  tags = merge(module.envs.tags, {
+    "Terraform"              = "True"
+  })
 }
 
 resource "helm_release" "karpenter" {
@@ -386,14 +420,18 @@ module "eks_blueprints_addons" {
   enable_cluster_autoscaler    = true # work with EKS Managed Node Group(s) ASG
   enable_kube_prometheus_stack = true
   enable_metrics_server        = true
-  enable_argo_rollouts         = true
-  enable_argocd                = true
-  enable_ingress_nginx         = true
+  # enable_argo_rollouts                = true
+  # enable_argocd                       = true
+  # enable_ingress_nginx                = true
 
   # enable_external_dns                    = true
   # enable_cert_manager                    = true
   # cert_manager_route53_hosted_zone_arns  = ["arn:aws:route53:::hostedzone/XXXXXXXXXXXXX"]
-  tags = {
-    Environment = var.environment_name
-  }
+
+  tags = merge(module.envs.tags, {
+    # NOTE - if creating multiple security groups with this module, only tag the
+    # security group that Karpenter should utilize with the following tag
+    # (i.e. - at most, only one security group should have this tag in your account)
+    "Terraform"              = "True"
+  })
 }
