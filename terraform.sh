@@ -1,7 +1,6 @@
 #!/bin/bash
 ### example
 ### export ENVIRONMENT="dev"
-
 ### ./terraform.sh $ENVIRONMENT networking init
 ### ./terraform.sh $ENVIRONMENT networking plan
 ### ./terraform.sh $ENVIRONMENT networking apply --auto-approve
@@ -9,7 +8,7 @@
 ENVIRONMENT=${1}
 CHDIR=${2}
 TF_COMMAND=${3}
-TF_OPTS=${4}
+TF_OPTS=$@
 
 TF_VAR_ENVIRONMENT=${ENVIRONMENT:-dev}
 TF_VAR_region=${region:-us-east-1}
