@@ -29,21 +29,22 @@ jobs:
       with:
         terraform_version: 1.5.0
         terraform_wrapper: false
-    - name: Module $TF_MODULE init
+    - name: Module networking init
       id: init
       run: ./terraform.sh ${GITHUB_REF##*/} $TF_MODULE init
       shell: bash
-    - name: Module $TF_MODULE Plan
+    - name: Module networking Plan
       id: plan
       run: ./terraform.sh ${GITHUB_REF##*/} $TF_MODULE plan -no-color -out tf.plan
       shell: bash
       continue-on-error: true
-    - name: Module $TF_MODULE Apply
+    - name: Module networking Apply
       if: github.ref != 'refs/heads/main' && github.event_name == 'push'
       run: ./terraform.sh ${GITHUB_REF##*/} $TF_MODULE apply -input=false tf.plan
       shell: bash
 
   eks:
+    needs: networking
     runs-on: ubuntu-latest
     environment: develop
     env:
