@@ -47,39 +47,6 @@ jobs:
       run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE apply --auto-approve
       shell: bash
 
-  eks:
-    needs: networking
-    runs-on: ubuntu-latest
-    environment: develop
-    env:
-      TF_MODULE: eks
-    name: Module eks
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Branch name
-      run: echo running on branch $ENVIRONMENT_NAME
-    - name: Configure AWS Credentials Action For GitHub Actions
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.5.0
-        terraform_wrapper: false
-    - name: Module eks init
-      id: init
-      run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE init
-      shell: bash
-    - name: Module eks Plan
-      id: plan
-      run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE plan
-      shell: bash
-      continue-on-error: true
-
   storage:
     needs: networking
     runs-on: ubuntu-latest
@@ -117,3 +84,72 @@ jobs:
       run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE apply --auto-approve
       shell: bash
 
+  eks:
+    needs: [networking, storage]
+    runs-on: ubuntu-latest
+    environment: develop
+    env:
+      TF_MODULE: eks
+    name: Module eks
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Branch name
+      run: echo running on branch $ENVIRONMENT_NAME
+    - name: Configure AWS Credentials Action For GitHub Actions
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.0
+        terraform_wrapper: false
+    - name: Module eks init
+      id: init
+      run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE init
+      shell: bash
+    - name: Module eks Plan
+      id: plan
+      run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE plan
+      shell: bash
+      continue-on-error: true
+
+  serverless:
+    needs: [networking, storage]
+    runs-on: ubuntu-latest
+    environment: develop
+    env:
+      TF_MODULE: serverless
+    name: Module serverless
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Branch name
+      run: echo running on branch $ENVIRONMENT_NAME
+    - name: Configure AWS Credentials Action For GitHub Actions
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.0
+        terraform_wrapper: false
+    - name: Module serverless init
+      id: init
+      run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE init
+      shell: bash
+    - name: Module serverless Plan
+      id: plan
+      run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE plan
+      shell: bash
+      continue-on-error: true
+    - name: Module serverless Apply
+      if: github.ref != 'refs/heads/main' && github.event_name == 'push'
+      run: ./terraform.sh $ENVIRONMENT_NAME $TF_MODULE apply --auto-approve
+      shell: bash
