@@ -8,7 +8,7 @@ locals {
 
 
   tags = {
-    environment = "trunglv"
+    environment = "${var.environment}"
     project     = "${var.project}"
   }
 
