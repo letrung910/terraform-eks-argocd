@@ -47,10 +47,6 @@ module "lambda_function_in_vpc" {
     Project     = var.project
   }
   allowed_triggers = {
-    OneRule = {
-      principal  = "events.amazonaws.com"
-      source_arn = module.eventbridge.eventbridge_rule_arns["crons"]
-    }
     AllowExecutionFromAPIGateway = {
       service    = "apigateway"
       source_arn = "${module.api_gateway.apigatewayv2_api_execution_arn}/*/*/*"
@@ -110,25 +106,3 @@ module "lambda_function_in_vpc" {
 
 
 
-module "eventbridge" {
-  source = "terraform-aws-modules/eventbridge/aws"
-
-  create_bus = false
-
-  rules = {
-    crons = {
-      description         = "Trigger for a Lambda"
-      schedule_expression = "rate(1 hour)"
-    }
-  }
-
-  targets = {
-    crons = [
-      {
-        name  = "lambda-loves-cron"
-        arn   = module.lambda_function_in_vpc.lambda_function_arn
-        input = jsonencode({ "job" : "cron-by-rate" })
-      }
-    ]
-  }
-}
