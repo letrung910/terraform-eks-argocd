@@ -6,13 +6,16 @@ on:
       - dev
     paths:
       - '**/*.tf'
+
+env:
+  ENVIRONMENT_NAME: dev
+
 jobs:
   networking:
     runs-on: ubuntu-latest
     environment: develop
     env:
       TF_MODULE: networking
-      ENVIRONMENT_NAME: dev
     name: Module networking
     steps:
     - name: Checkout

@@ -6,13 +6,16 @@ on:
       - main
     paths:
       - '**/*.tf'
+
+env:
+  ENVIRONMENT_NAME: prod
+
 jobs:
   networking:
     runs-on: ubuntu-latest
     environment: production
     env:
       TF_MODULE: networking
-      ENVIRONMENT_NAME: prod
     name: Module networking
     steps:
     - name: Checkout
