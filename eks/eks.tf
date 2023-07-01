@@ -1,6 +1,3 @@
-
-
-# https://github.com/terraform-aws-modules/terraform-aws-eks/blob/master/examples/karpenter/main.tf
 resource "aws_iam_user" "eks_user" {
   name = "eks_user"
 }
@@ -9,10 +6,7 @@ data "aws_ecrpublic_authorization_token" "token" {
   provider = aws.virginia
 }
 
-
-
 # Create an IAM role
-
 resource "aws_iam_role" "eks_role" {
   name = "eks-role"
 
