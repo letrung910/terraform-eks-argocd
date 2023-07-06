@@ -1,5 +1,5 @@
-module "envs" {
-  source      = "../modules/envs"
+module "env" {
+  source      = "../modules/env"
   environment = var.environment
   project     = var.project
 

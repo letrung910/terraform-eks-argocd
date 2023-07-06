@@ -30,11 +30,11 @@ module "vpc" {
 
   private_subnet_tags = {
     "kubernetes.io/role/internal-elb" = 1
-    "karpenter.sh/discovery"          = module.envs.eks_name
+    "karpenter.sh/discovery"          = module.env.eks_name
   }
 
 
-  tags = merge(module.envs.common_tags, {
+  tags = merge(module.env.common_tags, {
     Terraform = "true"
   })
 }
@@ -63,7 +63,7 @@ module "vpc_endpoints" {
     }
   }
 
-  tags = merge(module.envs.tags, {
+  tags = merge(module.env.tags, {
     Endpoint = "true"
   })
 }
@@ -129,5 +129,5 @@ resource "aws_security_group" "vpc_tls" {
     cidr_blocks = [module.vpc.vpc_cidr_block]
   }
 
-  tags = module.envs.tags
+  tags = module.env.tags
 }

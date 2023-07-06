@@ -44,8 +44,8 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 19.0"
 
-  cluster_name    = module.envs.eks_name
-  cluster_version = module.envs.cluster_version
+  cluster_name    = module.env.eks_name
+  cluster_version = module.env.cluster_version
 
   cluster_endpoint_public_access = true
   cluster_addons = {
@@ -140,7 +140,7 @@ module "eks" {
 
       instance_types = ["t3.medium"]
       capacity_type  = "SPOT" ### Type of capacity associated with the EKS Node Group. Valid values: ON_DEMAND, SPOT
-      labels = merge(module.envs.tags, {
+      labels = merge(module.env.tags, {
         # NOTE - if creating multiple security groups with this module, only tag the
         # security group that Karpenter should utilize with the following tag
         # (i.e. - at most, only one security group should have this tag in your account)
@@ -250,11 +250,11 @@ module "eks" {
   #     "888888888888",
   #   ]
 
-  tags = merge(module.envs.tags, {
+  tags = merge(module.env.tags, {
     # NOTE - if creating multiple security groups with this module, only tag the
     # security group that Karpenter should utilize with the following tag
     # (i.e. - at most, only one security group should have this tag in your account)
-    "karpenter.sh/discovery" = module.envs.eks_name
+    "karpenter.sh/discovery" = module.env.eks_name
     "Terraform"              = "True"
   })
 }
@@ -270,7 +270,7 @@ module "karpenter" {
     AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
   }
 
-  tags = merge(module.envs.tags, {
+  tags = merge(module.env.tags, {
     "Terraform" = "True"
   })
 }
@@ -422,7 +422,7 @@ module "eks_blueprints_addons" {
   # enable_cert_manager                    = true
   # cert_manager_route53_hosted_zone_arns  = ["arn:aws:route53:::hostedzone/XXXXXXXXXXXXX"]
 
-  tags = merge(module.envs.tags, {
+  tags = merge(module.env.tags, {
     # NOTE - if creating multiple security groups with this module, only tag the
     # security group that Karpenter should utilize with the following tag
     # (i.e. - at most, only one security group should have this tag in your account)
@@ -430,5 +430,9 @@ module "eks_blueprints_addons" {
   })
 }
 
-
+resource "kubernetes_namespace" "environment" {
+  metadata {
+    name = var.environment
+  }
+}
 
