@@ -11,7 +11,7 @@ resource "aws_dynamodb_table" "lambda_dynamodb" {
   }
   server_side_encryption { enabled = true }
 
-  tags = merge(module.envs.common_tags, {
+  tags = merge(module.env.common_tags, {
     Terraform = "true"
   })
 }
