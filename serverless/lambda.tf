@@ -99,7 +99,7 @@ module "lambda_function_in_vpc" {
     "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
     "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
   ]
-  tags = merge(module.envs.common_tags, {
+  tags = merge(module.env.common_tags, {
     Terraform = "true"
   })
 }
